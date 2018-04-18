@@ -23,7 +23,7 @@
   },
     "scripts": {
       "coveralls": "nyc report --reporter=text-lcov | coveralls",
-      "covereage": "cross-env NODE_ENV=test nyc --reporter=text --cache mocha --recursive --exit",
+      "coverage": "cross-env NODE_ENV=test nyc --reporter=text --cache mocha --recursive --exit",
       "test": "npm run test:unit --exit",
       "test:unit": "cross-env NODE_ENV=test nyc ./node_modules/.bin/mocha test/unit/*.test.js --exit",
       "test:watch": "cross-env NODE_ENV=test nodemon --exec \"mocha --recursive\"",
