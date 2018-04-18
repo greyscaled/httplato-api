@@ -56,7 +56,7 @@ module.exports = (app) => {
 
   // get the answer to a question
   app.post(
-    '/0questions/question/:question',
+    '/questions/question/:question',
     cors(corsPostFromAny),
     QController.getAnswerToQuestion
   )
