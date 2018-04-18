@@ -21,7 +21,15 @@
  * SOFTWARE.
  */
 const Question = require('../models').Question
+const Answer = require('../models').Answer
 const Tag = require('../models').Tag
+
+const ANSWER_ATTRIBUTES = [
+  'id',
+  'answer',
+  'createdAt',
+  'updatedAt'
+]
 
 module.exports = {
   async getAnswerToQuestion (req, res, next) {
@@ -30,13 +38,19 @@ module.exports = {
       return res.status(400).send()
     }
 
-    const q = await Question.findById(question)
+    const q = await Question.findById(question, {
+      attributes: [],
+      include: [{
+        as: 'Answer',
+        attributes: ANSWER_ATTRIBUTES,
+        model: Answer
+      }]
+    })
     if (!q) {
       return res.status(404).send()
+    } else {
+      return res.send(q.toJSON())
     }
-
-    const answer = await q.getAnswer()
-    return res.send(answer.toJSON())
   },
 
   async getQuestionById (req, res, next) {
@@ -63,12 +77,11 @@ module.exports = {
       include: [{
         as: 'Tags',
         model: Tag
-      }],
-      raw: true
+      }]
     })
 
     if (questions) {
-      res.json(questions)
+      res.send(JSON.stringify(questions))
     } else {
       res.status(404).send()
     }

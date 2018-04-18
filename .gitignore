@@ -11,3 +11,7 @@ config/test.js
 
 # Repo stuff
 .uploads/
+
+# seeds
+.data/
+seeders/
