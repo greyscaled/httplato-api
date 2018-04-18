@@ -81,7 +81,7 @@ module.exports = {
     })
 
     if (questions) {
-      res.send(JSON.stringify(questions))
+      res.json(questions)
     } else {
       res.status(404).send()
     }
