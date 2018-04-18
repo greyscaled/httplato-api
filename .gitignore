@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+
+# keys
+config/dev.js
+config/test.js
+.env
+
+# Coverage
+.nyc_output
+
+# Repo stuff
+.uploads/
