@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+- '9'
+addons:
+  postgresql: '9.4'
+env:
+- NODE_ENV=test
+before_script: -psql -c 'create database studying_test'; -U postgres -psql -c "CREATE
+  USER studying WITH PASSWORD 'test';" -U postgres
+script:
+- npm install && npm run coverage
+after_success: npm run coveralls
+deploy:
+  skip_cleanup: true
+  provider: heroku
+  api_key:
+    secure: FvFAytIrPA2atA28eB5g90Tcjr7YiW+oHrxksCbLuYOzTekpya+pvaFBuukJVNoQNCEIxLg9tcjGOLXfIuNisLhZ+KkzvzoLT/JXNIf++xdMdFGjfnksq6AU91jt+d2oNOx+3SNMQDIugljGskOfaHE7T7xiqiHBJu0mUx55uyZKZBBgTyC6tbPSQiahSDhMpAjP/SnTtf1jCijxmQSjqLD3knWa71qDfUq7Au7YNpKEIJWyHQAhrDv2w/GEbBtw2i1LZMqOc2yUfpoRsPbM5ca7RRJRmoQEn4IvhqPMrEwmcJ65tNt7iM6pAin5LnuXQ6EuFLFwZqhXTlApNewI9xpkmTHHfN+QdoT8F4qPyNkDsGD8eQTh/bZrHFe1IdbS3o6VeyB6kzwfgJ6bSj4LfgY4RuZFlwl2z/JEe06Vm8p7r74heYiXxwg3zbAAqSYB8yztrbVHGulsxwkaYWkXDIA06iWm3UkB4TktlnKxNfvCy8d5czZxuWGKUlG9aLknIsKGlYLXlNqGYzLbyroZNygcNwN2sca9xxE7qBighylzmU66kM7n01yVmJz6LTtKRtLXu5aS1Go7YkMEoxUXixj+WTHqQMXir1FOZm9stuuWGKC1PVqPPodj97XxpAcyaxUsKNjQEpcWIyxN1EBE47wWZqhtNbv4Kr68dV8WegU=
+  app: httplato-api
