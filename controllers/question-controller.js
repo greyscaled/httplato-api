@@ -23,6 +23,7 @@
 const Question = require('../models').Question
 const Answer = require('../models').Answer
 const Tag = require('../models').Tag
+const Sequelize = require('../models').sequelize
 
 const ANSWER_ATTRIBUTES = [
   'id',
@@ -77,7 +78,8 @@ module.exports = {
       include: [{
         as: 'Tags',
         model: Tag
-      }]
+      }],
+      order: Sequelize.random()
     })
 
     if (questions) {
