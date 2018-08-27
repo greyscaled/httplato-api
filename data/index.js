@@ -1,5 +1,5 @@
 /**
- * @file Entry point for Node server.
+ * @file Interface to the Database
  * @author Vapurrmaid <vapurrmaid@gmail.com>
  * @license
  * Copyright (c) 2018 Vapurrmaid
@@ -24,22 +24,43 @@
  */
 
 // eslint-disable-next-line no-unused-vars
-const debug = require('debug')('httplato::index.js')
+const debug = require('debug')('httplato::data/index.js')
 
 // dependencies
-if (process.env.NODE_ENV !== 'production') { require('dotenv').config() }
-const http = require('http')
-
-// Dynamically determine PORT
-const port = process.env.PORT
+const bluebird = require('bluebird')
+const pgp = require('pg-promise')({
+  connect (client, dc, useCount) {
+    debug('connected to %s', client.connectionParameters.database)
+  },
+  promiseLib: bluebird
+})
 
 // internals
-const app = require('./app')({ port })
-const db = require('./data/')
+const AnswerQueries = require('./Answer')
+const QuestionQueries = require('./Question')
+const Tasks = require('./Tasks')
 
-db.connect()
+/** static class representing an interface to Database operations */
+class DatabaseManager {
+  /**
+   * Connect to the Database and initialize DAOs
+   * @throws Throws an error if the database has a connection error
+   * @returns {undefined}
+   */
+  static connect () {
+    if (!process.env.DATABASE_URL) { throw new Error('Cannot connect to database, no URL specified') }
+    this.db = pgp(process.env.DATABASE_URL)
+    this.AnswerQueries = new AnswerQueries({ db: this.db })
+    this.QuestionQueries = new QuestionQueries({ db: this.db })
+    this.Tasks = new Tasks({ db: this.db })
+  }
 
-const server = http.createServer(app)
-server.listen(port, () => {
-  debug('listening on port %d', server.address().port)
-})
+  /**
+   * Ends connection with the Database
+   */
+  static close () {
+    this.db.$pool.end()
+  }
+}
+
+module.exports = DatabaseManager

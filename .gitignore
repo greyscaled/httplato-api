@@ -1,9 +1,7 @@
 # dependencies
 node_modules
 
-# keys
-config/dev.js
-config/test.js
+# Keys and ENV Vars
 .env
 
 # Coverage
@@ -12,6 +10,9 @@ config/test.js
 # Repo stuff
 .uploads/
 
-# seeds
+# Seeds
 .data/
 seeders/
+
+# Documentation
+out/

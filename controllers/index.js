@@ -21,37 +21,7 @@
  * SOFTWARE.
  */
 
-/**
- * Configures and exports an Express Router
- * @returns {Object} Express.Router
- */
-module.exports = () => {
-  // eslint-disable-next-line no-unused-vars
-  const debug = require('debug')('httplato::routes/question-routes')
-  const express = require('express')
-
-  const Controllers = require('../controllers')
-
-  debug('initializing router')
-  let router = express.Router()
-
-  // GET /questions
-  router.get(
-    '/',
-    Controllers.Questions.getAllQuestions
-  )
-
-  // GET /questions/:id
-  router.get(
-    '/:question',
-    Controllers.Questions.getQuestionById
-  )
-
-  // GET /questions/:question/answer
-  router.get(
-    '/:question/answer',
-    Controllers.Questions.getAnswerForQuestion
-  )
-
-  return router
+module.exports = {
+  Answers: require('./answer-controller'),
+  Questions: require('./question-controller')
 }

@@ -1,4 +1,6 @@
 /**
+ * @file Defines Base Class for each DAO
+ * @author Vapurrmaid <vapurrmaid@gmail.com>
  * @license
  * Copyright (c) 2018 Vapurrmaid
  *
@@ -21,35 +23,42 @@
  * SOFTWARE.
  */
 
-/**
- * Sequelize Tag Model
- * ======
- */
-
-'use strict'
-
-module.exports = (sequelize, DataTypes) => {
-  const Tag = sequelize.define('Tag',
-    {
-      tag: {
-        allowNull: false,
-        type: DataTypes.STRING,
-        unique: true,
-        validate: {
-          isAlphanumeric: true,
-          isLowercase: true,
-          notEmpty: true
-        }
-      }
-    },
-    {
-      timestamps: false
-    }
-  )
-  Tag.associate = function (models) {
-    Tag.belongsToMany(models.Question, {
-      through: 'QuestionTags'
-    })
+/** Abstract Base Class for a DAO. */
+class BaseDAO {
+  /**
+   * @param {Object} options
+   * @param {Object} options.db
+   */
+  constructor (options) {
+    this.db = options.db
   }
-  return Tag
+
+  /**
+   * All public (safe) Attributes of this Resource
+   *
+   * @returns {Array.<string>}
+   */
+  get publicAttributes () {
+    return this.attributes.public
+  }
+
+  /**
+   * All private (unsafe) Attributes of this Resource
+   *
+   * @returns {Array.<string>}
+   */
+  get privateAttributes () {
+    return this.attributes.private
+  }
+
+  /**
+   * All timestamp Attributes of this Resource
+   *
+   * @returns {Array.<string>}
+   */
+  get timestampAttributes () {
+    return this.attributes.timestamps
+  }
 }
+
+module.exports = BaseDAO

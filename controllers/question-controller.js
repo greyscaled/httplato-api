@@ -20,72 +20,87 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-const Question = require('../models').Question
-const Answer = require('../models').Answer
-const Tag = require('../models').Tag
-const Sequelize = require('../models').sequelize
 
-const ANSWER_ATTRIBUTES = [
-  'id',
-  'answer',
-  'createdAt',
-  'updatedAt'
-]
+// eslint-disable-next-line no-unused-vars
+const debug = require('debug')('httplato::controllers/question-controller.js')
+const pgp = require('pg-promise')
+const qrec = pgp.errors.queryResultErrorCode
 
+// internals
+const DatabaseManager = require('../data')
+
+/** Question Controller */
 module.exports = {
-  async getAnswerToQuestion (req, res, next) {
-    const { question } = req.params
-    if (!question) {
-      return res.status(400).send()
-    }
-
-    const q = await Question.findById(question, {
-      attributes: [],
-      include: [{
-        as: 'Answer',
-        attributes: ANSWER_ATTRIBUTES,
-        model: Answer
-      }]
-    })
-    if (!q) {
-      return res.status(404).send()
-    } else {
-      return res.send(q.toJSON())
+  /**
+   * Retreives all Questions
+   * @param {Object} req
+   * @param {Object} res
+   * @param {function} next
+   */
+  async getAllQuestions (req, res, next) {
+    try {
+      debug('retrieving all questions')
+      const data = await DatabaseManager.QuestionQueries.getAllQuestions()
+      return res
+        .status(200)
+        .json(data)
+    } catch (e) {
+      debug('Error retrieving questions, %O', e)
+      next(e)
     }
   },
 
+  /**
+   * Retreives a specific Question from its id
+   * @param {Object} req
+   * @param {number} req.params.question - Question id
+   * @param {Object} res
+   * @param {function} next
+   */
   async getQuestionById (req, res, next) {
-    const { question } = req.params
-    if (!question) {
-      return res.status(400).send()
-    }
-
-    const q = await Question.findById(question, {
-      include: [{
-        as: 'Tags',
-        model: Tag
-      }]
-    })
-
-    if (q) {
-      res.send(q.toJSON())
-    } else {
-      res.status(404).send()
+    try {
+      let question = parseInt(req.params.question)
+      if (isNaN(question)) return res.status(400).send()
+      debug('retrieving question with id %d', question)
+      const data = await DatabaseManager.QuestionQueries.getQuestionById(question)
+      return res
+        .status(200)
+        .json(data)
+    } catch (e) {
+      debug('Error retreiving question, %O', e)
+      if (e.code === qrec.noData) {
+        return res
+          .status(404)
+          .send('Not Found')
+      }
+      next(e)
     }
   },
-  async getQuestions (req, res, next) {
-    const questions = await Question.findAll({
-      include: [{
-        as: 'Tags',
-        model: Tag
-      }],
-      order: Sequelize.random()
-    })
 
-    if (questions) {
-      res.json(questions)
-    } else {
-      res.status(404).send()
+  /**
+   * Retreives an answer from a specific question.
+   * @param {Object} req
+   * @param {number} req.params.question - Question id
+   * @param {Object} res
+   * @param {function} next
+   */
+  async getAnswerForQuestion (req, res, next) {
+    try {
+      let question = parseInt(req.params.question)
+      if (isNaN(question)) return res.status(400).send()
+      debug('retrieving answer for question with id %d', question)
+      const data = await DatabaseManager.AnswerQueries.getAnswerToQuestion(question)
+      return res
+        .status(200)
+        .json(data)
+    } catch (e) {
+      debug('Error %O retrieving answer', e)
+      if (e.code === qrec.noData) {
+        return res
+          .status(404)
+          .send('Not Found')
+      }
+      next(e)
     }
   }
 }

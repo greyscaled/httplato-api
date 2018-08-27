@@ -1,4 +1,6 @@
 /**
+ * @file Express Application Configuration
+ * @author Vapurrmaid <vapurrmaid@gmail.com>
  * @license
  * Copyright (c) 2018 Vapurrmaid
  *
@@ -22,47 +24,54 @@
  */
 
 /**
- * App
- * ======
- * Express application setup.
+ * Configures and exports an Express Application
+ *
+ * @param {Object} options
+ * @param {number|string} options.port
+ * @returns {Object} app
  */
-const express = require('express')
-const helmet = require('helmet')
-const RateLimit = require('express-rate-limit')
+module.exports = function ({ port }) {
+  // eslint-disable-next-line no-unused-vars
+  const debug = require('debug')('httplato::app.js')
 
-const app = express()
-/// //////////////////////////////////////////////////////////////////////////////
-/// Pre-Route Middleware
-/// //////////////////////////////////////////////////////////////////////////////
+  // dependencies
+  const express = require('express')
+  const helmet = require('helmet')
+  const RateLimit = require('express-rate-limit')
 
-// add default helmet security header middlewares
-app.use(helmet())
+  // internals
+  const { internalError } = require('./middleware/')
 
-// setup rate limiting
-app.enable('trust proxy')
+  // Configuration -----------------------------------//
+  debug('configuring express application')
 
-const limiter = new RateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs
-  delayMs: 0 // disable delaying
-})
+  const app = express()
 
-app.use(limiter)
+  // set port from param
+  if (port) {
+    debug('setting port to %d', port)
+    app.set('port', port)
+  }
 
-/// //////////////////////////////////////////////////////////////////////////////
-/// Routing
-/// //////////////////////////////////////////////////////////////////////////////
-require('./routes/question-routes')(app)
+  // for use behind Heroku proxy
+  app.enable('trust proxy')
 
-/// //////////////////////////////////////////////////////////////////////////////
-/// Post-Route Middleware
-/// //////////////////////////////////////////////////////////////////////////////
+  // PRE-ROUTE ---------------------------------------//
 
-// 404 Handler
-app.use((req, res, next) => {
-  const err = new Error('Not Found')
-  err.status = 404
-  next(err)
-})
+  // adds basic security headers
+  app.use(helmet())
 
-module.exports = app
+  app.use(new RateLimit({
+    windowMs: 10 * 60 * 1000, // 10 mins
+    max: 10000,
+    delayMS: 0
+  }))
+
+  // ROUTING -----------------------------------------//
+  require('./routes/')(app)
+
+  // POST-ROUTE --------------------------------------//
+  app.use(internalError)
+
+  return app
+}

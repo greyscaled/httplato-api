@@ -1,4 +1,6 @@
 /**
+ * @file Middleware Functions related to Errors
+ * @author Vapurrmaid <vapurrmaid@gmail.com>
  * @license
  * Copyright (c) 2018 Vapurrmaid
  *
@@ -21,66 +23,21 @@
  * SOFTWARE.
  */
 
+const debug = require('debug')('httplato::middleware/errors.js')
+
 /**
- * Sequelize Answer Model
- * ======
+ * Generic error handler. Sends a 500 status.
+ *
+ * @param {Object.<Error>} err
+ * @param {Object} req
+ * @param {Object} res
+ * @param {function} next
  */
-
-'use strict'
-
-module.exports = (sequelize, DataTypes) => {
-  const Answer = sequelize.define('Answer',
-    {
-      answer: {
-        allowNull: false,
-        type: DataTypes.JSONB
-      }
-    }
-  )
-  Answer.associate = function (models) {
-    Answer.belongsTo(models.Question, {
-      as: 'Question',
-      foreignKey: 'questionId'
-    })
-
-    Answer.belongsTo(models.Question, {
-      as: 'PendingQuestion',
-      foreignKey: 'pendingQuestionId'
-    })
-  }
-  return Answer
+const internalError = (err, req, res, next) => {
+  debug('error calling next %O', err.stack)
+  res.status(500).send('Internal error')
 }
 
-// // "type": "'tf'|'mc'|'fill'|'sa'|'choose'"
-
-// "answer": {
-//     "before": "",
-//     "blocks": [
-//       {
-//         "tf": true,
-//         "description": ""
-//       },
-//       {
-//         "tf": false,
-//         "description": ""
-//       },
-//       {
-//         "mc": {
-//             "index": "'1'-'5'",
-//             "value": ""
-//         }
-//       },
-//       {
-//         "fill": ""
-//       },
-//       {
-//         "sa": ""
-//       },
-//       {
-//         "choose": {
-//             "option": "option1"
-//         }
-//       }
-//     ],
-//     "after": ""
-// }
+module.exports = {
+  internalError
+}

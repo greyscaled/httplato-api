@@ -1,7 +1,3 @@
-/**
- * Helper methods for Testing
- */
-
 const GENERIC_ANSWER_CONTENT_TF = JSON.stringify({
   before: '',
   blocks: [{
@@ -124,6 +120,16 @@ const GENERIC_QUESTION_CONTENT_CHOOSE = JSON.stringify({
 })
 
 module.exports = {
+  nextMock: () => {
+    return {
+      nextCalled: 0,
+      next (err) {
+        this.nextCalled++
+        if (err) this.error = err
+      }
+    }
+  },
+
   genericAnswerData (t = 'tf', withContent) {
     let content = GENERIC_ANSWER_CONTENT_TF
 
