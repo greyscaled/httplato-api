@@ -7,51 +7,67 @@
     "studying",
     "student"
   ],
-  "homepage": "",
-  "bugs": "",
-  "main": "index.js",
+  "homepage": "https://github.com/vapurrmaid/httplato-api",
+  "bugs": "https://github.com/vapurrmaid/httplato-api/issues",
+  "license": "MIT",
   "author": {
     "name": "Vapurrmaid",
     "email": "vapurrmaid@gmail.com",
     "url": "http://github.com/vapurrmaid"
   },
-  "license": "MIT",
-  "private": true,
+  "contributors": [],
   "repository": {
     "type": "git",
     "url": "https://github.com/vapurrmaid/httplato-api"
   },
-    "scripts": {
-      "coveralls": "nyc report --reporter=text-lcov | coveralls",
-      "coverage": "cross-env NODE_ENV=test nyc --reporter=text --cache mocha --recursive --exit",
-      "test": "npm run test:unit --exit",
-      "test:unit": "cross-env NODE_ENV=test nyc ./node_modules/.bin/mocha test/unit/*.test.js --exit",
-      "test:watch": "cross-env NODE_ENV=test nodemon --exec \"mocha --recursive\"",
-      "server:dev": "cross-env NODE_ENV=development nodemon index.js",
-      "start": "node index.js"
-  },
-  "devDependencies": {
-    "concurrently": "^3.5.1",
-    "coveralls": "^3.0.0",
-    "cross-env": "^5.1.4",
-    "expect": "^23.5.0",
-    "mocha": "^5.1.0",
-    "mocha-lcov-reporter": "^1.3.0",
-    "node-mocks-http": "^1.5.8",
-    "nodemon": "^1.17.3",
-    "nyc": "^12.0.1",
-    "supertest": "^3.0.0"
+  "scripts": {
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "lint": "standard",
+    "seed": "node test/helpers/seed.js",
+    "seed:local": "cross-env DATABASE_URL=postgres://postgres:postgres@localhost:5432/httplato_dev node test/helpers/seed.js",
+    "test": "npm run lint && npm run seed && npm run test:unit && npm run test:integration && npm run teardown --exit",
+    "test:local": "npm run seed:local && cross-env NODE_ENV=test DATABASE_URL=postgres://postgres:postgres@localhost:5432/httplato_dev npm run test:unit && npm run test:integration:local && npm run teardown:local",
+    "test:integration": "mocha test/**/*.integration.js --recursive --sort --timeout 10000 --exit",
+    "test:integration:local": "cross-env NODE_ENV=test DATABASE_URL=postgres://postgres:postgres@localhost:5432/httplato_dev npm run test:integration",
+    "test:unit": "nyc --reporter=text mocha test/**/*.test.js --recursive --sort --timeout 10000 --exit",
+    "test:watch": "cross-env NODE_ENV=test DATABASE_URL=postgres://postgres:postgres@localhost:5432/httplato_dev nodemon --exec \"mocha --recursive\"",
+    "teardown": "node test/helpers/teardown.js",
+    "teardown:local": "cross-env DATABASE_URL=postgres://postgres:postgres@localhost:5432/httplato_dev node test/helpers/teardown.js",
+    "server": "cross-env NODE_ENV=development DEBUG=httplato* PORT=3000 DATABASE_URL=postgres://postgres:postgres@localhost:5432/httplato_dev nodemon index.js",
+    "start": "node index.js"
   },
   "dependencies": {
-    "body-parser": "^1.18.2",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "debug": "^3.1.0",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-rate-limit": "^3.0.0",
-    "helmet": "^3.12.0",
-    "pg": "^7.4.1",
-    "pg-hstore": "^2.3.2",
-    "sequelize": "^4.37.6",
-    "sequelize-cli": "^4.0.0"
-  }
+    "helmet": "^3.13.0",
+    "pg": "^7.4.3",
+    "pg-promise": "^8.4.6"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.2",
+    "cross-env": "^5.2.0",
+    "expect": "^23.5.0",
+    "mocha": "^5.2.0",
+    "mocha-lcov-reporter": "^1.3.0",
+    "node-mocks-http": "^1.7.0",
+    "nodemon": "^1.18.3",
+    "nyc": "^12.0.1",
+    "supertest": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=10.0"
+  },
+  "nyc": {
+    "exclude": [
+      "migrations/",
+      "seeds/",
+      "test/**"
+    ]
+  },
+  "private": true
 }

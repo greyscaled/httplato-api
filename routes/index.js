@@ -1,4 +1,6 @@
 /**
+ * @file Express Router Intialization
+ * @author Vapurrmaid <vapurrmaid@gmail.com>
  * @license
  * Copyright (c) 2018 Vapurrmaid
  *
@@ -21,36 +23,19 @@
  * SOFTWARE.
  */
 
-'use strict'
-module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Questions', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      type: {
-        allowNull: false,
-        notEmpty: true,
-        type: Sequelize.STRING
-      },
-      content: {
-        allowNull: false,
-        type: Sequelize.JSONB
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      }
-    })
-  },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Questions')
-  }
+// eslint-disable-next-line no-unused-vars
+const debug = require('debug')('httplato::routes/index.js')
+
+const answerRoutes = require('./answer-routes')()
+const questionRoutes = require('./question-routes')()
+
+/**
+ * Initializes Express Router for an express application
+ * @param {Object} app - an Express Application
+ * @returns {undefined}
+ */
+module.exports = (app) => {
+  debug('initializing express router')
+  app.use('/answers', answerRoutes)
+  app.use('/questions', questionRoutes)
 }

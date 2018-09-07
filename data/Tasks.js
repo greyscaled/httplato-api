@@ -1,5 +1,4 @@
 /**
- * @file Entry point for Node server.
  * @author Vapurrmaid <vapurrmaid@gmail.com>
  * @license
  * Copyright (c) 2018 Vapurrmaid
@@ -24,22 +23,41 @@
  */
 
 // eslint-disable-next-line no-unused-vars
-const debug = require('debug')('httplato::index.js')
-
-// dependencies
-if (process.env.NODE_ENV !== 'production') { require('dotenv').config() }
-const http = require('http')
-
-// Dynamically determine PORT
-const port = process.env.PORT
+const debug = require('debug')('httplato::data/Tasks.js')
 
 // internals
-const app = require('./app')({ port })
-const db = require('./data/')
+const sql = require('./sql')
 
-db.connect()
+const insertAnswerReturnJoin = sql('insert-answer-ret-join.sql')
 
-const server = http.createServer(app)
-server.listen(port, () => {
-  debug('listening on port %d', server.address().port)
-})
+/** Tasks and Transactions */
+class Tasks {
+  constructor (options) {
+    this.db = options.db
+  }
+
+  /**
+   * Inserts a New Question with an Answer
+   *
+   * @param {string} type - type of question/answer
+   * @param {object} content - question json
+   * @param {object} answer - answer json
+   * @returns {object} created Question joined with created Answer
+   */
+  submitQuestionWithAnswer ({ type, content, answer }) {
+    debug('creating question with answer of type %s', type)
+    return new Promise((resolve, reject) => {
+      this
+        .db
+        .tx(async t => {
+          const id = await t.one('INSERT into public.questions(type, content) VALUES($/type/, $/content/) RETURNING id;', { type, content }, val => val.id)
+          const qAndA = await t.one(insertAnswerReturnJoin, { answer, qid: id })
+          return qAndA
+        })
+        .then(data => resolve(data))
+        .catch(err => reject(err))
+    })
+  }
+}
+
+module.exports = Tasks

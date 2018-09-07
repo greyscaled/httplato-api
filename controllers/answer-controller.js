@@ -21,37 +21,30 @@
  * SOFTWARE.
  */
 
-/**
- * Configures and exports an Express Router
- * @returns {Object} Express.Router
- */
-module.exports = () => {
-  // eslint-disable-next-line no-unused-vars
-  const debug = require('debug')('httplato::routes/question-routes')
-  const express = require('express')
+// eslint-disable-next-line no-unused-vars
+const debug = require('debug')('httplato::controllers/answer-controller.js')
 
-  const Controllers = require('../controllers')
+// internals
+const DatabaseManager = require('../data')
 
-  debug('initializing router')
-  let router = express.Router()
-
-  // GET /questions
-  router.get(
-    '/',
-    Controllers.Questions.getAllQuestions
-  )
-
-  // GET /questions/:id
-  router.get(
-    '/:question',
-    Controllers.Questions.getQuestionById
-  )
-
-  // GET /questions/:question/answer
-  router.get(
-    '/:question/answer',
-    Controllers.Questions.getAnswerForQuestion
-  )
-
-  return router
+/** Answer Controller */
+module.exports = {
+  /**
+   * Retrieves all Answers
+   * @param {Object} req
+   * @param {Object} res
+   * @param {function} next
+   */
+  async getAllAnswers (req, res, next) {
+    try {
+      debug('retrieving all answers')
+      const data = await DatabaseManager.AnswerQueries.getAllAnswers()
+      return res
+        .status(200)
+        .json(data)
+    } catch (e) {
+      debug('Error retrieving answers, %O', e)
+      next(e)
+    }
+  }
 }
